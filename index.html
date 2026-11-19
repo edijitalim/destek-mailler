@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Destek Talebi Oluştur</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --primary: #3b82f6;
+            --primary-hover: #2563eb;
+            --border: #334155;
+            --success: #10b981;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            background-color: var(--card-bg);
+            width: 100%;
+            max-width: 540px;
+            padding: 32px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+        }
+
+        .header {
+            margin-bottom: 24px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: var(--text-muted);
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 6px;
+            color: #e2e8f0;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px 14px;
+            background-color: var(--bg-color);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-main);
+            font-size: 15px;
+            transition: border-color 0.2s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-top: 8px;
+        }
+
+        .btn:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .status-box {
+            display: none;
+            margin-top: 20px;
+            padding: 16px;
+            border-radius: 8px;
+            background-color: rgba(16, 185, 129, 0.1);
+            border: 1px solid var(--success);
+            color: #a7f3d0;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .download-txt-btn {
+            display: inline-block;
+            margin-top: 12px;
+            padding: 8px 14px;
+            background-color: var(--success);
+            color: #064e3b;
+            font-weight: 600;
+            border-radius: 6px;
+            text-decoration: none;
+            cursor: pointer;
+            border: none;
+            font-size: 13px;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>Destek Talebi</h1>
+        <p>Yaşadığınız sorunu veya talebinizi aşağıdan iletebilirsiniz. Kaydınız otomatik olarak sisteme işlenecektir.</p>
+    </div>
+
+    <form id="supportForm" name="destek-talepleri" method="POST" data-netlify="true" netlify-honeypot="bot-field">
+        <input type="hidden" name="form-name" value="destek-talepleri" />
+        
+        <p class="hidden">
+            <label>Bunu doldurmayın: <input name="bot-field" /></label>
+        </p>
+
+        <div class="form-group">
+            <label for="adSoyad">Adınız Soyadınız</label>
+            <input type="text" id="adSoyad" name="ad_soyad" placeholder="Örn: Ahmet Yılmaz" required>
+        </div>
+
+        <div class="form-group">
+            <label for="eposta">E-posta Adresiniz</label>
+            <input type="email" id="eposta" name="eposta" placeholder="ornek@alanadi.com" required>
+        </div>
+
+        <div class="form-group">
+            <label for="kategori">Konu / Kategori</label>
+            <select id="kategori" name="kategori" required>
+                <option value="Teknik Sorun">Teknik Sorun</option>
+                <option value="Hesap ve Erişim">Hesap ve Erişim</option>
+                <option value="Öneri / Geri Bildirim">Öneri / Geri Bildirim</option>
+                <option value="Diğer">Diğer</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="mesaj">Talebiniz</label>
+            <textarea id="mesaj" name="mesaj" placeholder="Detayları buraya yazabilirsiniz..." required></textarea>
+        </div>
+
+        <button type="submit" class="btn" id="submitBtn">Talebi Gönder</button>
+    </form>
+
+    <div class="status-box" id="statusBox">
+        <strong>Talebiniz başarıyla alındı!</strong><br>
+        Kaydınız sisteme işlendi. Dilerseniz talebinizin bir kopyasını bilgisayarınıza metin belgesi olarak indirebilirsiniz.<br>
+        <button type="button" class="download-txt-btn" id="downloadTxtBtn">Kopyasını .TXT Olarak İndir</button>
+    </div>
+</div>
+
+<script>
+    const form = document.getElementById('supportForm');
+    const statusBox = document.getElementById('statusBox');
+    const submitBtn = document.getElementById('submitBtn');
+    const downloadTxtBtn = document.getElementById('downloadTxtBtn');
+
+    let sonGonderilenVeri = "";
+
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Gönderiliyor...";
+
+        const formData = new FormData(form);
+        const tarih = new Date().toLocaleString('tr-TR');
+
+        sonGonderilenVeri = `=== DESTEK TALEBİ KAYDI ===\n` +
+                            `Tarih: ${tarih}\n` +
+                            `Ad Soyad: ${formData.get('ad_soyad')}\n` +
+                            `E-posta: ${formData.get('eposta')}\n` +
+                            `Kategori: ${formData.get('kategori')}\n` +
+                            `-----------------------------\n` +
+                            `Mesaj:\n${formData.get('mesaj')}\n` +
+                            `=============================`;
+
+        const body = new URLSearchParams();
+        for (const [key, value] of formData.entries()) {
+            body.append(key, value);
+        }
+
+        fetch("/", {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: body.toString()
+        })
+        .then((response) => {
+            if (!response.ok) {
+                throw new Error("HTTP " + response.status);
+            }
+            form.reset();
+            statusBox.style.display = "block";
+            submitBtn.disabled = false;
+            submitBtn.textContent = "Yeni Talep Gönder";
+        })
+        .catch((error) => {
+            console.error("Form gönderim hatası:", error);
+            alert("Netlify'a gönderim sırasında hata oluştu (" + error.message + "). Sayfanın netlify.app üzerinde yayında olduğundan emin olun.");
+            submitBtn.disabled = false;
+            submitBtn.textContent = "Talebi Gönder";
+        });
+    });
+
+    downloadTxtBtn.addEventListener('click', function() {
+        const blob = new Blob([sonGonderilenVeri], { type: "text/plain;charset=utf-8" });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = `destek-talebi-${Date.now()}.txt`;
+        link.click();
+    });
+</script>
+
+</body>
+</html>
