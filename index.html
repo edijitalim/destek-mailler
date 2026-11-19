@@ -186,6 +186,17 @@
             background-color: #334155;
             color: #f8fafc;
         }
+
+        .badge-blocker {
+            position: fixed;
+            right: 0;
+            bottom: 0;
+            width: 220px;
+            height: 76px;
+            background-color: var(--bg-color);
+            z-index: 2147483647;
+            pointer-events: none;
+        }
     </style>
 </head>
 <body>
@@ -245,6 +256,8 @@
         </div>
     </div>
 </div>
+
+<div class="badge-blocker" aria-hidden="true"></div>
 
 <script>
     const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyBZBQyaScLQNneU1FLbyjhk2DGPuqyXaVE3Bc-c7CTQ3HQS7TvSi9t-S9Ckyjz_-xR/exec";
