@@ -71,6 +71,29 @@
             color: #e2e8f0;
         }
 
+        .optional-tag {
+            color: var(--text-muted);
+            font-size: 12px;
+            font-weight: 400;
+        }
+
+        .upload-help {
+            margin-top: 6px;
+            font-size: 12px;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        .upload-help a {
+            color: #60a5fa;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .upload-help a:hover {
+            text-decoration: underline;
+        }
+
         input, select, textarea {
             width: 100%;
             padding: 12px 14px;
@@ -118,31 +141,50 @@
         .status-box {
             display: none;
             margin-top: 20px;
-            padding: 16px;
-            border-radius: 8px;
+            padding: 18px;
+            border-radius: 10px;
             background-color: rgba(16, 185, 129, 0.1);
             border: 1px solid var(--success);
             color: #a7f3d0;
             font-size: 14px;
-            line-height: 1.5;
+            line-height: 1.6;
         }
 
-        .download-txt-btn {
+        .ticket-badge {
             display: inline-block;
-            margin-top: 12px;
+            margin: 8px 0;
+            padding: 6px 12px;
+            background-color: #064e3b;
+            border: 1px solid var(--success);
+            border-radius: 6px;
+            color: #ffffff;
+            font-family: monospace;
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .action-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        .download-txt-btn, .copy-btn {
             padding: 8px 14px;
             background-color: var(--success);
             color: #064e3b;
             font-weight: 600;
             border-radius: 6px;
-            text-decoration: none;
             cursor: pointer;
             border: none;
             font-size: 13px;
         }
 
-        .hidden {
-            display: none;
+        .copy-btn {
+            background-color: #334155;
+            color: #f8fafc;
         }
     </style>
 </head>
@@ -151,16 +193,10 @@
 <div class="container">
     <div class="header">
         <h1>Destek Talebi</h1>
-        <p>Yaşadığınız sorunu veya talebinizi aşağıdan iletebilirsiniz. Kaydınız otomatik olarak sisteme işlenecektir.</p>
+        <p>Yaşadığınız sorunu veya talebinizi aşağıdan iletebilirsiniz. Kaydınız otomatik olarak sisteme işlenecek ve size bir talep numarası verilecektir.</p>
     </div>
 
-    <form id="supportForm" name="destek-talepleri" method="POST" data-netlify="true" netlify-honeypot="bot-field">
-        <input type="hidden" name="form-name" value="destek-talepleri" />
-        
-        <p class="hidden">
-            <label>Bunu doldurmayın: <input name="bot-field" /></label>
-        </p>
-
+    <form id="supportForm">
         <div class="form-group">
             <label for="adSoyad">Adınız Soyadınız</label>
             <input type="text" id="adSoyad" name="ad_soyad" placeholder="Örn: Ahmet Yılmaz" required>
@@ -182,6 +218,16 @@
         </div>
 
         <div class="form-group">
+            <label for="gorselUrl">Görsel Bağlantısı <span class="optional-tag">(İsteğe bağlı)</span></label>
+            <input type="url" id="gorselUrl" name="gorsel_url" placeholder="https://ibb.co/... veya https://postimg.cc/...">
+            <div class="upload-help">
+                Üyelik gerektirmeden görsel yüklemek için aç:
+                <a href="https://imgbb.com/" target="_blank" rel="noopener noreferrer">ImgBB</a> ·
+                <a href="https://postimages.org/" target="_blank" rel="noopener noreferrer">Postimages</a>
+            </div>
+        </div>
+
+        <div class="form-group">
             <label for="mesaj">Talebiniz</label>
             <textarea id="mesaj" name="mesaj" placeholder="Detayları buraya yazabilirsiniz..." required></textarea>
         </div>
@@ -191,18 +237,36 @@
 
     <div class="status-box" id="statusBox">
         <strong>Talebiniz başarıyla alındı!</strong><br>
-        Kaydınız sisteme işlendi. Dilerseniz talebinizin bir kopyasını bilgisayarınıza metin belgesi olarak indirebilirsiniz.<br>
-        <button type="button" class="download-txt-btn" id="downloadTxtBtn">Kopyasını .TXT Olarak İndir</button>
+        Takip için talep numaranız:<br>
+        <div class="ticket-badge" id="ticketNoDisplay">TLP-000000</div>
+        <div class="action-row">
+            <button type="button" class="copy-btn" id="copyTicketBtn">Talep No Kopyala</button>
+            <button type="button" class="download-txt-btn" id="downloadTxtBtn">Kopyasını .TXT Olarak İndir</button>
+        </div>
     </div>
 </div>
 
 <script>
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyBZBQyaScLQNneU1FLbyjhk2DGPuqyXaVE3Bc-c7CTQ3HQS7TvSi9t-S9Ckyjz_-xR/exec";
+
     const form = document.getElementById('supportForm');
     const statusBox = document.getElementById('statusBox');
     const submitBtn = document.getElementById('submitBtn');
     const downloadTxtBtn = document.getElementById('downloadTxtBtn');
+    const copyTicketBtn = document.getElementById('copyTicketBtn');
+    const ticketNoDisplay = document.getElementById('ticketNoDisplay');
 
     let sonGonderilenVeri = "";
+    let sonTalepNo = "";
+
+    function talepNoUret() {
+        const now = new Date();
+        const yil = now.getFullYear();
+        const ay = String(now.getMonth() + 1).padStart(2, '0');
+        const gun = String(now.getDate()).padStart(2, '0');
+        const rastgele = Math.floor(1000 + Math.random() * 9000);
+        return `TLP-${yil}${ay}${gun}-${rastgele}`;
+    }
 
     form.addEventListener('submit', function(e) {
         e.preventDefault();
@@ -211,48 +275,59 @@
 
         const formData = new FormData(form);
         const tarih = new Date().toLocaleString('tr-TR');
+        sonTalepNo = talepNoUret();
+        const gorselLink = (formData.get('gorsel_url') || "").trim();
 
         sonGonderilenVeri = `=== DESTEK TALEBİ KAYDI ===\n` +
+                            `Talep No: ${sonTalepNo}\n` +
                             `Tarih: ${tarih}\n` +
                             `Ad Soyad: ${formData.get('ad_soyad')}\n` +
                             `E-posta: ${formData.get('eposta')}\n` +
                             `Kategori: ${formData.get('kategori')}\n` +
+                            `Görsel Bağlantısı: ${gorselLink || "Yok"}\n` +
                             `-----------------------------\n` +
                             `Mesaj:\n${formData.get('mesaj')}\n` +
                             `=============================`;
 
-        const body = new URLSearchParams();
-        for (const [key, value] of formData.entries()) {
-            body.append(key, value);
-        }
+        const params = new URLSearchParams();
+        params.append("talep_no", sonTalepNo);
+        params.append("ad_soyad", formData.get('ad_soyad') || "");
+        params.append("eposta", formData.get('eposta') || "");
+        params.append("kategori", formData.get('kategori') || "");
+        params.append("gorsel_url", gorselLink);
+        params.append("mesaj", formData.get('mesaj') || "");
 
-        fetch("/", {
+        fetch(GOOGLE_SCRIPT_URL, {
             method: "POST",
-            headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            body: body.toString()
+            mode: "no-cors",
+            body: params
         })
-        .then((response) => {
-            if (!response.ok) {
-                throw new Error("HTTP " + response.status);
-            }
+        .then(() => {
             form.reset();
+            ticketNoDisplay.textContent = sonTalepNo;
             statusBox.style.display = "block";
             submitBtn.disabled = false;
             submitBtn.textContent = "Yeni Talep Gönder";
         })
         .catch((error) => {
-            console.error("Form gönderim hatası:", error);
-            alert("Netlify'a gönderim sırasında hata oluştu (" + error.message + "). Sayfanın netlify.app üzerinde yayında olduğundan emin olun.");
+            console.error("Gönderim hatası:", error);
+            alert("Gönderim sırasında hata oluştu. Lütfen tekrar deneyin.");
             submitBtn.disabled = false;
             submitBtn.textContent = "Talebi Gönder";
         });
+    });
+
+    copyTicketBtn.addEventListener('click', function() {
+        navigator.clipboard.writeText(sonTalepNo);
+        copyTicketBtn.textContent = "Kopyalandı!";
+        setTimeout(() => copyTicketBtn.textContent = "Talep No Kopyala", 2000);
     });
 
     downloadTxtBtn.addEventListener('click', function() {
         const blob = new Blob([sonGonderilenVeri], { type: "text/plain;charset=utf-8" });
         const link = document.createElement("a");
         link.href = URL.createObjectURL(blob);
-        link.download = `destek-talebi-${Date.now()}.txt`;
+        link.download = `${sonTalepNo}.txt`;
         link.click();
     });
 </script>
