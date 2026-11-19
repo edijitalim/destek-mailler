@@ -47,10 +47,43 @@
             margin-bottom: 24px;
         }
 
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+
         .header h1 {
             font-size: 24px;
             font-weight: 700;
-            margin-bottom: 8px;
+        }
+
+        .lang-switch {
+            display: inline-flex;
+            background-color: var(--bg-color);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 3px;
+            flex-shrink: 0;
+        }
+
+        .lang-btn {
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            font-size: 12px;
+            font-weight: 700;
+            padding: 5px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s, color 0.2s;
+        }
+
+        .lang-btn.active {
+            background-color: var(--primary);
+            color: #ffffff;
         }
 
         .header p {
@@ -204,35 +237,44 @@
 
 <div class="container">
     <div class="header">
-        <h1>Destek Talebi</h1>
-        <p>Yaşadığınız sorunu veya talebinizi aşağıdan iletebilirsiniz. Kaydınız otomatik olarak sisteme işlenecek ve size bir talep numarası verilecektir.</p>
+        <div class="header-top">
+            <h1 id="pageTitle">Destek Talebi</h1>
+            <div class="lang-switch" role="group" aria-label="Language selector">
+                <button type="button" class="lang-btn active" id="btnTr" data-lang="tr">TR</button>
+                <button type="button" class="lang-btn" id="btnEn" data-lang="en">EN</button>
+            </div>
+        </div>
+        <p id="pageSubtitle">Yaşadığınız sorunu veya talebinizi aşağıdan iletebilirsiniz. Kaydınız otomatik olarak sisteme işlenecek ve size bir talep numarası verilecektir.</p>
     </div>
 
     <form id="supportForm">
         <div class="form-group">
-            <label for="adSoyad">Adınız Soyadınız</label>
+            <label for="adSoyad" id="labelName">Adınız Soyadınız</label>
             <input type="text" id="adSoyad" name="ad_soyad" placeholder="Örn: Ahmet Yılmaz" required>
         </div>
 
         <div class="form-group">
-            <label for="eposta">E-posta Adresiniz</label>
+            <label for="eposta" id="labelEmail">E-posta Adresiniz</label>
             <input type="email" id="eposta" name="eposta" placeholder="ornek@alanadi.com" required>
         </div>
 
         <div class="form-group">
-            <label for="kategori">Konu / Kategori</label>
+            <label for="kategori" id="labelCategory">Konu / Kategori</label>
             <select id="kategori" name="kategori" required>
-                <option value="Teknik Sorun">Teknik Sorun</option>
-                <option value="Hesap ve Erişim">Hesap ve Erişim</option>
-                <option value="Öneri / Geri Bildirim">Öneri / Geri Bildirim</option>
-                <option value="Diğer">Diğer</option>
+                <option value="Teknik Sorun" id="optTech">Teknik Sorun</option>
+                <option value="Hesap ve Erişim" id="optAccount">Hesap ve Erişim</option>
+                <option value="Öneri / Geri Bildirim" id="optFeedback">Öneri / Geri Bildirim</option>
+                <option value="Diğer" id="optOther">Diğer</option>
             </select>
         </div>
 
         <div class="form-group">
-            <label for="gorselUrl">Görsel Bağlantısı <span class="optional-tag">(İsteğe bağlı)</span></label>
+            <label for="gorselUrl">
+                <span id="labelImage">Görsel Bağlantısı</span>
+                <span class="optional-tag" id="optionalTag">(İsteğe bağlı)</span>
+            </label>
             <input type="url" id="gorselUrl" name="gorsel_url" placeholder="https://ibb.co/... veya https://postimg.cc/...">
-            <div class="upload-help">
+            <div class="upload-help" id="uploadHelp">
                 Üyelik gerektirmeden görsel yüklemek için aç:
                 <a href="https://imgbb.com/" target="_blank" rel="noopener noreferrer">ImgBB</a> ·
                 <a href="https://postimages.org/" target="_blank" rel="noopener noreferrer">Postimages</a>
@@ -240,7 +282,7 @@
         </div>
 
         <div class="form-group">
-            <label for="mesaj">Talebiniz</label>
+            <label for="mesaj" id="labelMessage">Talebiniz</label>
             <textarea id="mesaj" name="mesaj" placeholder="Detayları buraya yazabilirsiniz..." required></textarea>
         </div>
 
@@ -248,8 +290,8 @@
     </form>
 
     <div class="status-box" id="statusBox">
-        <strong>Talebiniz başarıyla alındı!</strong><br>
-        Takip için talep numaranız:<br>
+        <strong id="statusTitle">Talebiniz başarıyla alındı!</strong><br>
+        <span id="statusDesc">Takip için talep numaranız:</span><br>
         <div class="ticket-badge" id="ticketNoDisplay">TLP-000000</div>
         <div class="action-row">
             <button type="button" class="copy-btn" id="copyTicketBtn">Talep No Kopyala</button>
@@ -263,15 +305,142 @@
 <script>
     const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyBZBQyaScLQNneU1FLbyjhk2DGPuqyXaVE3Bc-c7CTQ3HQS7TvSi9t-S9Ckyjz_-xR/exec";
 
+    const translations = {
+        tr: {
+            docTitle: "Destek Talebi Oluştur",
+            pageTitle: "Destek Talebi",
+            pageSubtitle: "Yaşadığınız sorunu veya talebinizi aşağıdan iletebilirsiniz. Kaydınız otomatik olarak sisteme işlenecek ve size bir talep numarası verilecektir.",
+            labelName: "Adınız Soyadınız",
+            placeholderName: "Örn: Ahmet Yılmaz",
+            labelEmail: "E-posta Adresiniz",
+            placeholderEmail: "ornek@alanadi.com",
+            labelCategory: "Konu / Kategori",
+            optTech: "Teknik Sorun",
+            optAccount: "Hesap ve Erişim",
+            optFeedback: "Öneri / Geri Bildirim",
+            optOther: "Diğer",
+            labelImage: "Görsel Bağlantısı",
+            optionalTag: "(İsteğe bağlı)",
+            placeholderImage: "https://ibb.co/... veya https://postimg.cc/...",
+            uploadHelpPrefix: "Üyelik gerektirmeden görsel yüklemek için aç:",
+            labelMessage: "Talebiniz",
+            placeholderMessage: "Detayları buraya yazabilirsiniz...",
+            submitIdle: "Talebi Gönder",
+            submitSending: "Gönderiliyor...",
+            submitAgain: "Yeni Talep Gönder",
+            statusTitle: "Talebiniz başarıyla alındı!",
+            statusDesc: "Takip için talep numaranız:",
+            copyBtn: "Talep No Kopyala",
+            copiedBtn: "Kopyalandı!",
+            downloadBtn: "Kopyasını .TXT Olarak İndir",
+            errorMsg: "Gönderim sırasında hata oluştu. Lütfen tekrar deneyin.",
+            noneText: "Yok",
+            txtHeader: "=== DESTEK TALEBİ KAYDI ===",
+            txtTicket: "Talep No",
+            txtDate: "Tarih",
+            txtName: "Ad Soyad",
+            txtEmail: "E-posta",
+            txtCategory: "Kategori",
+            txtImage: "Görsel Bağlantısı",
+            txtMessage: "Mesaj"
+        },
+        en: {
+            docTitle: "Create Support Ticket",
+            pageTitle: "Support Ticket",
+            pageSubtitle: "You can submit your issue or request below. Your entry will be recorded automatically and you will receive a ticket number.",
+            labelName: "Full Name",
+            placeholderName: "e.g. John Doe",
+            labelEmail: "Email Address",
+            placeholderEmail: "name@domain.com",
+            labelCategory: "Topic / Category",
+            optTech: "Technical Issue",
+            optAccount: "Account & Access",
+            optFeedback: "Suggestion / Feedback",
+            optOther: "Other",
+            labelImage: "Image Link",
+            optionalTag: "(Optional)",
+            placeholderImage: "https://ibb.co/... or https://postimg.cc/...",
+            uploadHelpPrefix: "Upload without registration:",
+            labelMessage: "Your Request",
+            placeholderMessage: "Write the details here...",
+            submitIdle: "Submit Ticket",
+            submitSending: "Sending...",
+            submitAgain: "Submit Another Ticket",
+            statusTitle: "Your ticket has been submitted!",
+            statusDesc: "Your tracking ticket number:",
+            copyBtn: "Copy Ticket No",
+            copiedBtn: "Copied!",
+            downloadBtn: "Download Copy as .TXT",
+            errorMsg: "An error occurred while submitting. Please try again.",
+            noneText: "None",
+            txtHeader: "=== SUPPORT TICKET RECORD ===",
+            txtTicket: "Ticket No",
+            txtDate: "Date",
+            txtName: "Full Name",
+            txtEmail: "Email",
+            txtCategory: "Category",
+            txtImage: "Image Link",
+            txtMessage: "Message"
+        }
+    };
+
+    let currentLang = "tr";
+    let isSubmittedOnce = false;
+    let isCopied = false;
+
     const form = document.getElementById('supportForm');
     const statusBox = document.getElementById('statusBox');
     const submitBtn = document.getElementById('submitBtn');
     const downloadTxtBtn = document.getElementById('downloadTxtBtn');
     const copyTicketBtn = document.getElementById('copyTicketBtn');
     const ticketNoDisplay = document.getElementById('ticketNoDisplay');
+    const btnTr = document.getElementById('btnTr');
+    const btnEn = document.getElementById('btnEn');
 
     let sonGonderilenVeri = "";
     let sonTalepNo = "";
+
+    function applyLanguage(lang) {
+        currentLang = lang;
+        const t = translations[lang];
+
+        document.documentElement.lang = lang;
+        document.title = t.docTitle;
+        document.getElementById('pageTitle').textContent = t.pageTitle;
+        document.getElementById('pageSubtitle').textContent = t.pageSubtitle;
+        document.getElementById('labelName').textContent = t.labelName;
+        document.getElementById('adSoyad').placeholder = t.placeholderName;
+        document.getElementById('labelEmail').textContent = t.labelEmail;
+        document.getElementById('eposta').placeholder = t.placeholderEmail;
+        document.getElementById('labelCategory').textContent = t.labelCategory;
+        document.getElementById('optTech').textContent = t.optTech;
+        document.getElementById('optAccount').textContent = t.optAccount;
+        document.getElementById('optFeedback').textContent = t.optFeedback;
+        document.getElementById('optOther').textContent = t.optOther;
+        document.getElementById('labelImage').textContent = t.labelImage;
+        document.getElementById('optionalTag').textContent = t.optionalTag;
+        document.getElementById('gorselUrl').placeholder = t.placeholderImage;
+        document.getElementById('uploadHelp').innerHTML =
+            `${t.uploadHelpPrefix} <a href="https://imgbb.com/" target="_blank" rel="noopener noreferrer">ImgBB</a> · ` +
+            `<a href="https://postimages.org/" target="_blank" rel="noopener noreferrer">Postimages</a>`;
+        document.getElementById('labelMessage').textContent = t.labelMessage;
+        document.getElementById('mesaj').placeholder = t.placeholderMessage;
+
+        if (!submitBtn.disabled) {
+            submitBtn.textContent = isSubmittedOnce ? t.submitAgain : t.submitIdle;
+        }
+
+        document.getElementById('statusTitle').textContent = t.statusTitle;
+        document.getElementById('statusDesc').textContent = t.statusDesc;
+        copyTicketBtn.textContent = isCopied ? t.copiedBtn : t.copyBtn;
+        downloadTxtBtn.textContent = t.downloadBtn;
+
+        btnTr.classList.toggle('active', lang === 'tr');
+        btnEn.classList.toggle('active', lang === 'en');
+    }
+
+    btnTr.addEventListener('click', () => applyLanguage('tr'));
+    btnEn.addEventListener('click', () => applyLanguage('en'));
 
     function talepNoUret() {
         const now = new Date();
@@ -284,23 +453,25 @@
 
     form.addEventListener('submit', function(e) {
         e.preventDefault();
+        const t = translations[currentLang];
+
         submitBtn.disabled = true;
-        submitBtn.textContent = "Gönderiliyor...";
+        submitBtn.textContent = t.submitSending;
 
         const formData = new FormData(form);
-        const tarih = new Date().toLocaleString('tr-TR');
+        const tarih = new Date().toLocaleString(currentLang === 'tr' ? 'tr-TR' : 'en-GB');
         sonTalepNo = talepNoUret();
         const gorselLink = (formData.get('gorsel_url') || "").trim();
 
-        sonGonderilenVeri = `=== DESTEK TALEBİ KAYDI ===\n` +
-                            `Talep No: ${sonTalepNo}\n` +
-                            `Tarih: ${tarih}\n` +
-                            `Ad Soyad: ${formData.get('ad_soyad')}\n` +
-                            `E-posta: ${formData.get('eposta')}\n` +
-                            `Kategori: ${formData.get('kategori')}\n` +
-                            `Görsel Bağlantısı: ${gorselLink || "Yok"}\n` +
+        sonGonderilenVeri = `${t.txtHeader}\n` +
+                            `${t.txtTicket}: ${sonTalepNo}\n` +
+                            `${t.txtDate}: ${tarih}\n` +
+                            `${t.txtName}: ${formData.get('ad_soyad')}\n` +
+                            `${t.txtEmail}: ${formData.get('eposta')}\n` +
+                            `${t.txtCategory}: ${formData.get('kategori')}\n` +
+                            `${t.txtImage}: ${gorselLink || t.noneText}\n` +
                             `-----------------------------\n` +
-                            `Mesaj:\n${formData.get('mesaj')}\n` +
+                            `${t.txtMessage}:\n${formData.get('mesaj')}\n` +
                             `=============================`;
 
         const params = new URLSearchParams();
@@ -318,23 +489,28 @@
         })
         .then(() => {
             form.reset();
+            isSubmittedOnce = true;
             ticketNoDisplay.textContent = sonTalepNo;
             statusBox.style.display = "block";
             submitBtn.disabled = false;
-            submitBtn.textContent = "Yeni Talep Gönder";
+            submitBtn.textContent = translations[currentLang].submitAgain;
         })
         .catch((error) => {
             console.error("Gönderim hatası:", error);
-            alert("Gönderim sırasında hata oluştu. Lütfen tekrar deneyin.");
+            alert(translations[currentLang].errorMsg);
             submitBtn.disabled = false;
-            submitBtn.textContent = "Talebi Gönder";
+            submitBtn.textContent = isSubmittedOnce ? translations[currentLang].submitAgain : translations[currentLang].submitIdle;
         });
     });
 
     copyTicketBtn.addEventListener('click', function() {
         navigator.clipboard.writeText(sonTalepNo);
-        copyTicketBtn.textContent = "Kopyalandı!";
-        setTimeout(() => copyTicketBtn.textContent = "Talep No Kopyala", 2000);
+        isCopied = true;
+        copyTicketBtn.textContent = translations[currentLang].copiedBtn;
+        setTimeout(() => {
+            isCopied = false;
+            copyTicketBtn.textContent = translations[currentLang].copyBtn;
+        }, 2000);
     });
 
     downloadTxtBtn.addEventListener('click', function() {
@@ -344,6 +520,8 @@
         link.download = `${sonTalepNo}.txt`;
         link.click();
     });
+
+    applyLanguage('tr');
 </script>
 
 </body>
