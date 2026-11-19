@@ -222,14 +222,28 @@
 
         .badge-blocker {
             position: fixed;
-            right: 4px;
-            bottom: 4px;
-            width: 224px;
-            height: 54px;
-            border-radius: 16px;
+            right: 8px;
+            bottom: 8px;
+            max-width: calc(100vw - 16px);
+            min-width: 224px;
+            height: 44px;
+            padding: 0 12px;
+            border-radius: 12px;
             background-color: var(--bg-color);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
             z-index: 2147483647;
             pointer-events: auto;
+            user-select: none;
         }
     </style>
 </head>
@@ -300,7 +314,7 @@
     </div>
 </div>
 
-<div class="badge-blocker" aria-hidden="true"></div>
+<div class="badge-blocker" aria-hidden="true">𝖊𝖉𝖎𝖏𝖎𝖙𝖆𝖑𝖎𝖒 · 𝟽/𝟸𝟺 𝔇𝔢𝔰𝔱𝔢𝔨 © 𝔈𝔪𝔯𝔢</div>
 
 <script>
     const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyBZBQyaScLQNneU1FLbyjhk2DGPuqyXaVE3Bc-c7CTQ3HQS7TvSi9t-S9Ckyjz_-xR/exec";
